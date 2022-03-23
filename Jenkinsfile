@@ -1,19 +1,24 @@
-pipeline {
-    
-    agent none
-    
-   stages {
-        
-        stage('Build'){
-            
-            agent {
-                label "myslavemaven"
+pipeline{
+    agent any
+    environment {
+        PATH = "$PATH:/opt/apache-maven-3.8.2/bin"
+    }
+    stages{        
+       stage('Build'){
+            steps{
+                sh 'mvn clean package'
             }
-          
-          steps {
-             
-                echo "my master branch"
-          }
+         }
+        stage('SonarQube analysis') {
+//    def scannerHome = tool 'SonarScanner 4.0';
+        steps{
+        withSonarQubeEnv('sonarqube-9.3') { 
+        // If you have configured more than one global server connection, you can specify its name
+//      sh "${scannerHome}/bin/sonar-scanner"
+        sh "mvn sonar:sonar"
+    }
         }
-   }
+        }
+       
+    }
 }
